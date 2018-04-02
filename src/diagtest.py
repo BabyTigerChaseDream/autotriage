@@ -40,15 +40,14 @@ def reRun(TestEntry, vlcp, interact=False, cl='tot'):
 
 ### download log and parse it ###
 def DownloadFd(TestEntry, uuid):
-    {'fdlink':''.join(("http://eris-fs000/logs/",uuid)),'log':'*'.join((TestEntry['hw'],TestEntry['log'],'zip')),'path':''.join(("/home/jia/workspace/download/triage/logs/",uuid))}
-    serverDir = ''.join(("http://eris-fs000/logs/",uuid))
+    serverDir = os.path.join("http://eris-fs000/logs/",uuid)
     pattern = '*'.join((TestEntry['hw'],TestEntry['log'],'zip'))
-    localDir = ''.join(("/home/jia/workspace/download/triage/logs/",uuid))
+    localDir = os.path.join("/home/jia/workspace/download/triage/logs/",uuid)
     log = TestEntry['log']
     # called module fdfetcher's "func:: wget"
     # wget(serverDir,pattern,localDir)
     os.system("wget -r -l1 --no-parent --cut-dirs=10 -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
-    # TODO : get real fd name, no "*" in it 
+    # TODO : get real fd name, no "*" in it , use glob/fmatch ?
     cmd = "ls {localDir} | grep {log}".format_map(vars())
     proc=sub.Popen(cmd, bufsize=1, shell=True, stdout=sub.PIPE)
     # get stdout/stderr
