@@ -23,7 +23,8 @@ from itertools import groupby
 # other mod 
 import re
 
-global resuList = list()
+global resuList
+resuList = []
 
 global cudnn_vlcp_dict 
 
@@ -63,13 +64,16 @@ def GetBuildTable(uuid):
     url = "https://eris-portal.nvidia.com/OneSubmissionBuildsServlet?uuid=%s&tableselector=dataTableOneSubmissionTestSuites"%uuid
     urlstring = GetUrlString(url)
 
-    for ent in re.finditer(r'&componentNameText=cudnn(?P<component>\w+)&erisConfigID=(?P<cid>\d+)(?:.+?)(?:(?:&hostName=(?P<hw>eris-\w+-\w+)&phase=(?P<log>\w+))|(?:Log file was not created))',urlstring):
+    for ent in re.finditer(r'badge-(?P<resu>\w+)\'>(?P<info>[\w\d\s]+)<(?:.+?)&componentNameText=(?P<comp>\w+)&erisConfigID=(?P<cid>\d+)(?:.+?)(?:(?:&hostName=(?P<hw>eris-\w+-\w+)&phase=(?P<log>\w+))|(?:Log file was not created))',urlstring):
         resuList.append(ent.groupdict())
     
     return resuList
 
 
 def GetTestTable(uuid):
+"""
+ TODO: if uuid still in progress , log/name missing , new regex TBD 
+"""
     url = "https://eris-portal.nvidia.com/OneSubmissionTestSuitesServlet?uuid=%s&tableselector=dataTableOneSubmissionBuilds&url"%uuid
     urlstring = GetUrlString(url)
 
@@ -126,6 +130,30 @@ def ConfigStrUpdate(ResuList, configMap):
     for r in ResuList:
         r['cid']= configMap[r['cid']]
     return ResuList
+
+# autotriage cmd "show test" 
+def GetCompleteTestList(uuid):
+    resuList = GetTestTable(uuid)
+    cidSet = ConfigIDSet(resuList)
+    # below got "cid:{os,arch,gpu}" dict group
+    configMap = MapConfigID2Str(cidSet)
+    
+    CompleteTestList = ConfigStrUpdate(resuList, configMap)
+    
+    # list 
+    return CompleteTestList
+
+# autotriage cmd "show build" 
+def GetCompleteBuildList(uuid):
+    resuList = GetBuildTable(uuid)
+    cidSet = ConfigIDSet(resuList)
+    # below got "cid:{os,arch,gpu}" dict group
+    configMap = MapConfigID2Str(cidSet)
+    
+    CompleteBuildList = ConfigStrUpdate(resuList, configMap)
+    
+    # list 
+    return CompleteBuildList    
 """
     #########################################################
      Get failed/notrun/abort items from overall Results List
@@ -151,6 +179,9 @@ def FilterResuList(ResuListAll, keyword=None):
     #    elif keyword == None:
     #        yield ent
 
+"""
+Smart parser (combine test fail -> build fail: Matrix(os,arch) as hash key)
+"""
 def display(ResuList):
     ResuList.sort(key=itemgetter('resu'))
     for resu, ent in groupby(ResuList,key=itemgetter('resu')):
