@@ -47,12 +47,22 @@ def DownloadFd(TestEntry, uuid):
     # called module fdfetcher's "func:: wget"
     # wget(serverDir,pattern,localDir)
     os.system("wget -r -l1 --no-parent --cut-dirs=10 -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
+
+    # exec cmd at localDir , for unzip 
+    os.chdir(localDir)
+    # unzip all zip files in localDir(must be absolute path)
+    for item in os.listdir(localDir):
+        if item.endswith('.zip'):
+            cmd="unzip %s && rm %s" % (item,item)
+            #print('unzip ==> ',cmd)
+            os.system(cmd)  
+
     # TODO : get real fd name, no "*" in it , use glob/fmatch ?
     cmd = "ls {localDir} | grep {log}".format_map(vars())
     proc=sub.Popen(cmd, bufsize=1, shell=True, stdout=sub.PIPE)
     # get stdout/stderr
     stdout,stderr = proc.communicate()
-    return stdout.decode('utf-8') 
+    return localDir,stdout.decode('utf-8').strip() 
 
 """ get full local log path : def DownloadFd(TestEntry, uuid) 
     Then pass it to "testparser.py" -> [func] TestFilter

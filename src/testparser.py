@@ -4,6 +4,10 @@ from itertools import groupby
 import re
 
 def TestFilter(logfile, keyword):
+    print(' Start parsing log ...\n')
+    # TODO : wordaround bug in autotriage download_list
+    if not logfile.endswith('log'):
+        return 
     resuList = []
     with open(logfile,'r') as f:
         for result in re.finditer(r"(?P<errname>@@@@ (?:First error msg).*$)(?:(?:\n|.)*?)(?P<testid>(?:&&&&) (?:PASSED|FAILED|WAIVED) cudnnTest.*$)",f.read(),re.MULTILINE):

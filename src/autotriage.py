@@ -23,6 +23,7 @@ autotriage provide cmdline for triage nightly failures
 standard Python module
 """
 import argparse 
+import os 
 
 """
 Private module for triage 
@@ -30,6 +31,7 @@ Private module for triage
 from fdfetcher import *
 from testparser import *
 from uuidparser import *
+from diagtest import *
 
 ####################
 #####   main   #####`
@@ -43,7 +45,11 @@ if __name__=="__main__":
     parser.add_argument('-k', action='store', dest='keyword', default=None, help='keyword filter contents')
     # TODO: to restrict -s to follow "show suite only "
     # suite name -- show one suite 
-    parser.add_argument('-s', action='store', dest='suite', nargs='+', help='select test suite to show detail')
+    # below version supports list param 
+    # parser.add_argument('-tsuite', action='store', dest='tsuite', nargs='+', help='select test suite to show detail')
+    
+    # single string version 
+    parser.add_argument('-tsuite', action='store', dest='tsuite', default=None, help='select test suite to show detail')
     # mutual exclusive group
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-sh', action='store', dest='show', default=None, choices=['build','test','suite'], help='show specify dataset')
@@ -70,11 +76,20 @@ if __name__=="__main__":
         # show suite supports fail log download/parse only 
         # no need to parse PASS log 
         elif arglist.show == 'suite':
-            if arglist.suite:
-                for t in filter(lambda l:arglist.suite in l['tsuite'],GetCompleteTestList(uuid)):
-                    print(t['resu'],t['info'],t['comp'],t['cid'],t['hw'],t['log'], sep=' | ')
+            download_list= []
+            if arglist.tsuite:
+                for t in GetCompleteTestList(uuid, "failed"):
+                # TODO : change arglist.tsuite to support list 
+                    if arglist.tsuite in t['tsuite']: 
+                        download_list.append(DownloadFd(t, uuid))
             # else download all failed suite's log file 
             else:
-                for t in filter(lambda l:arglist.keyword in l['tsuite'],GetCompleteTestList(uuid)):
-                    print(t['resu'],t['info'],t['comp'],t['cid'],t['hw'],t['log'], sep=' | ')
-
+                for t in GetCompleteTestList(uuid, "failed"):
+                    download_list.append(DownloadFd(t, uuid))
+            
+            print('====== Download Done !!! ====== \n')
+            for d in download_list:
+                print('[Test Suite]',*d,sep='\n\t')
+                # TODO : to be continued 
+                #TestFilter(os.path.join(*d),'FAILED')
+                
