@@ -71,9 +71,7 @@ def GetBuildTable(uuid):
 
 
 def GetTestTable(uuid):
-"""
- TODO: if uuid still in progress , log/name missing , new regex TBD 
-"""
+ #TODO: if uuid still in progress , log/name missing , new regex TBD 
     url = "https://eris-portal.nvidia.com/OneSubmissionTestSuitesServlet?uuid=%s&tableselector=dataTableOneSubmissionBuilds&url"%uuid
     urlstring = GetUrlString(url)
 
@@ -93,9 +91,15 @@ def GetTestTable(uuid):
     # match A OR B 
     # ('notrun', 'Subm Timeout', 'cudnn_samples_mnist_tests', '9681', '', '')
     # ('passed', '6', 'cudnn_samples_mnist_tests', '51662', 'eris-ub14-vt005', '_test__96c266482b')
-    for ent in re.finditer(r'badge-(?P<resu>\w+)\'>(?P<info>[\w\d\s]+)<(?:.+?)&testSuiteNameText=(?P<tsuite>\w+)&erisConfigID=(?P<cid>\d+)(?:.+?)(?:(?:&hostName=(?P<hw>eris-\w+-\w+)&phase=(?P<log>\w+))|(?:Log file was not created))',urlstring):
-        resuList.append(ent.groupdict())
     
+    # !!! TODO: passed/notrun/fail portion each has separate entry in xml @!!!
+    # [Aprila/05] full match , catch failed if fail occur, else report pass 
+    # if suite has "pass/fail/notrun" 3 kinds of status, entry in order of : pass -> fail -> notrun 
+    # regex below catches only pass -> failed(so only need {1,2}, no need catch 3rd ent if exist ) , 
+    # when notrun(actual test timeout) with pass/fail , we ignore it
+    #for ent in re.finditer(r'badge-(?P<resu>\w+)\'>(?P<info>[\w\d\s]+)<(?:.+?)&testSuiteNameText=(?P<tsuite>\w+)&erisConfigID=(?P<cid>\d+)(?:.+?)(?:(?:&hostName=(?P<hw>eris-\w+-\w+)&phase=(?P<log>\w+))|(?:Log file was not created))',urlstring):
+    for ent in re.finditer(r'(?:badge-(?P<resu>failed|passed|notrun|aborted)\'>(?P<info>[\w\d\s]+)<(?:.+?)){1,2}&testSuiteNameText=(?P<tsuite>\w+)&erisConfigID=(?P<cid>\d+)(?:.+?)(?:(?:&hostName=(?P<hw>eris-\w+-\w+)&phase=(?P<log>\w+))|(?:Log file was not created))',urlstring):
+        resuList.append(ent.groupdict())
     return resuList
 
 """
@@ -132,25 +136,25 @@ def ConfigStrUpdate(ResuList, configMap):
     return ResuList
 
 # autotriage cmd "show test" 
-def GetCompleteTestList(uuid):
-    resuList = GetTestTable(uuid)
-    cidSet = ConfigIDSet(resuList)
+def GetCompleteTestList(uuid, keyword=None):
+    testList = FilterResuList(GetTestTable(uuid),keyword)
+    cidSet = ConfigIDSet(testList)
     # below got "cid:{os,arch,gpu}" dict group
     configMap = MapConfigID2Str(cidSet)
     
-    CompleteTestList = ConfigStrUpdate(resuList, configMap)
+    CompleteTestList = ConfigStrUpdate(testList, configMap)
     
     # list 
     return CompleteTestList
 
 # autotriage cmd "show build" 
-def GetCompleteBuildList(uuid):
-    resuList = GetBuildTable(uuid)
-    cidSet = ConfigIDSet(resuList)
+def GetCompleteBuildList(uuid, keyword=None):
+    buildList = FilterResuList(GetBuildTable(uuid),keyword)
+    cidSet = ConfigIDSet(buildList)
     # below got "cid:{os,arch,gpu}" dict group
     configMap = MapConfigID2Str(cidSet)
     
-    CompleteBuildList = ConfigStrUpdate(resuList, configMap)
+    CompleteBuildList = ConfigStrUpdate(buildList, configMap)
     
     # list 
     return CompleteBuildList    

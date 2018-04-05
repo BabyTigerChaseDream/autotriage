@@ -7,6 +7,7 @@ autotriage provide cmdline for triage nightly failures
     -test all/failed/passed/.../(aborted|notrun)  --> regex supported
      (-test failed -name L3 ... -> specify a suite)
     -build all/failed/depend failed ...
+    -suite all/[suitename] 
     -command
     -config
 - "diff command" (diff test set )
@@ -31,7 +32,7 @@ from testparser import *
 from uuidparser import *
 
 ####################
-#####   main   #####
+#####   main   #####`
 ####################
 if __name__=="__main__":
     import argparse
@@ -40,9 +41,12 @@ if __name__=="__main__":
     parser.add_argument('-u', action='store', dest='uuid', default=None, required=True, help='Eris uuid')
     # TODO: regex format "-k"
     parser.add_argument('-k', action='store', dest='keyword', default=None, help='keyword filter contents')
+    # TODO: to restrict -s to follow "show suite only "
+    # suite name -- show one suite 
+    parser.add_argument('-s', action='store', dest='suite', nargs='+', help='select test suite to show detail')
     # mutual exclusive group
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-sh', action='store', dest='show', default=None, choices=['build','test'], help='show specify dataset')
+    group.add_argument('-sh', action='store', dest='show', default=None, choices=['build','test','suite'], help='show specify dataset')
     group.add_argument('-diff', action='store', dest='diff', default=None, choices=['build','test'], help='diff between 2 tests/build')
     group.add_argument('-exec', action='store', dest='exec', default=None, help='submit test/build cmdline to Eris')
     
@@ -55,17 +59,22 @@ if __name__=="__main__":
     uuid = arglist.uuid
     # TODO : better exclusive subparam among(sh/diff/exec)
     if arglist.show:
+    #TODO : keep uuid overall result table:: load once and ONLY once !!!
         if arglist.show == 'test':
-            if arglist.keyword:
-                for t in filter(lambda l:arglist.keyword in l['resu'],GetCompleteTestList(uuid)):
-                    print(t['resu'],t['info'],t['tsuite'],t['cid'],t['hw'],t['log'], sep=' | ')
-            else:
-                for t in GetCompleteTestList(uuid):
-                    print(t['resu'],t['info'],t['tsuite'],t['cid'],t['hw'],t['log'], sep=' | ')
+            for t in GetCompleteTestList(uuid, arglist.keyword):
+                print(t['tsuite'],t['resu'],t['info'],t['cid'],t['hw'],t['log'], sep=' | ')
+                #print(t.values())
         elif arglist.show == 'build':
-            if arglist.keyword:
-                for t in filter(lambda l:arglist.keyword in l['resu'],GetCompleteBuildList(uuid)):
+            for t in GetCompleteBuildList(uuid, arglist.keyword):
+                print(t['resu'],t['info'],t['comp'],t['cid'],t['hw'],t['log'], sep=' | ')
+        # show suite supports fail log download/parse only 
+        # no need to parse PASS log 
+        elif arglist.show == 'suite':
+            if arglist.suite:
+                for t in filter(lambda l:arglist.suite in l['tsuite'],GetCompleteTestList(uuid)):
                     print(t['resu'],t['info'],t['comp'],t['cid'],t['hw'],t['log'], sep=' | ')
+            # else download all failed suite's log file 
             else:
-                for t in GetCompleteBuildList(uuid):
+                for t in filter(lambda l:arglist.keyword in l['tsuite'],GetCompleteTestList(uuid)):
                     print(t['resu'],t['info'],t['comp'],t['cid'],t['hw'],t['log'], sep=' | ')
+
