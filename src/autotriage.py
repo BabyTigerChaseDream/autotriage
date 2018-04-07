@@ -76,12 +76,12 @@ if __name__=="__main__":
         # show suite supports fail log download/parse only 
         # no need to parse PASS log 
         elif arglist.show == 'suite':
-            download_list= []
+            download_list = []
             if arglist.tsuite:
                 for t in GetCompleteTestList(uuid, "failed"):
                 # TODO : change arglist.tsuite to support list 
                     if arglist.tsuite in t['tsuite']: 
-                        download_list.append(DownloadFd(t, uuid))
+                       download_list.append(DownloadFd(t, uuid))
             # else download all failed suite's log file 
             else:
                 for t in GetCompleteTestList(uuid, "failed"):
@@ -89,7 +89,5 @@ if __name__=="__main__":
             
             print('====== Download Done !!! ====== \n')
             for d in download_list:
-                print('[Test Suite]',*d,sep='\n\t')
-                # TODO : to be continued 
-                #TestFilter(os.path.join(*d),'FAILED')
+                TestFilter(os.path.join(*d),'FAILED')
                 

@@ -4,13 +4,19 @@ from itertools import groupby
 import re
 
 def TestFilter(logfile, keyword):
-    print(' Start parsing log ...\n')
+    print(' Start parsing log ...\n\t %s \n'% logfile)
     # TODO : wordaround bug in autotriage download_list
     if not logfile.endswith('log'):
+        print("[Err] Wrong format log !!!")
         return 
     resuList = []
     with open(logfile,'r') as f:
-        for result in re.finditer(r"(?P<errname>@@@@ (?:First error msg).*$)(?:(?:\n|.)*?)(?P<testid>(?:&&&&) (?:PASSED|FAILED|WAIVED) cudnnTest.*$)",f.read(),re.MULTILINE):
+    # 2018/04/07 : working version
+        #for result in re.finditer(r"(?P<errname>@@@@ (?:First error msg).*$)(?:(?:\n|.)*?)(?P<testid>(?:&&&&) (?:PASSED|FAILED|WAIVED) cudnnTest.*$)",f.read(),re.MULTILINE):
+        # Step-2 capture "NOT RUN already but cannot capture group name when sorting"
+        #for result in re.finditer(r"(?P<errname>@@@@ First error msg.*$)|Error Detected:(?:(?:\n|.)*?)(?P<testid>(?:&&&&) (?:PASSED|FAILED|WAIVED) cudnnTest.*$)",f.read(),re.MULTILINE):
+        for result in re.finditer(r"(?P<errname>@@@@ First error msg.*$|Error Detected:)(?:(?:\n|.)*?)(?P<testid>(?:&&&&) (?:PASSED|FAILED|WAIVED) cudnnTest.*$)",f.read(),re.MULTILINE):
+            #print(result.groupdict())
             resuList.append(result.groupdict())
     # before groupby(the key "errname") , need to sort list first
     resuList.sort(key=itemgetter('errname'))
