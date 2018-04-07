@@ -16,7 +16,6 @@ def TestFilter(logfile, keyword):
         # Step-2 capture "NOT RUN already but cannot capture group name when sorting"
         #for result in re.finditer(r"(?P<errname>@@@@ First error msg.*$)|Error Detected:(?:(?:\n|.)*?)(?P<testid>(?:&&&&) (?:PASSED|FAILED|WAIVED) cudnnTest.*$)",f.read(),re.MULTILINE):
         for result in re.finditer(r"(?P<errname>@@@@ First error msg.*$|Error Detected:)(?:(?:\n|.)*?)(?P<testid>(?:&&&&) (?:PASSED|FAILED|WAIVED) cudnnTest.*$)",f.read(),re.MULTILINE):
-            #print(result.groupdict())
             resuList.append(result.groupdict())
     # before groupby(the key "errname") , need to sort list first
     resuList.sort(key=itemgetter('errname'))
