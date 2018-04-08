@@ -92,6 +92,7 @@ if __name__=="__main__":
                     download_list.append(DnldTuple(t['tsuite'],t['cid'],DownloadFd(t, uuid)))
             
             print('====== Download Done !!! ====== \n')
+
             for d in download_list:
                 print('####################\n[##### SUM TABLE #####]',d.tsuite,d.cid)
                 # TODO: optimize data structure 

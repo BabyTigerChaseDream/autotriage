@@ -1,7 +1,11 @@
 #!/usr/bin/python3
+
 from operator import itemgetter 
 from itertools import groupby
 import re
+
+# file/path lib
+from pathlib import Path
 
 def TestFilter(logfile, keyword, logfail=True):
     print(' Start parsing log ...\n\t %s \n'% logfile)
@@ -10,10 +14,17 @@ def TestFilter(logfile, keyword, logfail=True):
         print("[Err] Wrong format log !!!")
         return 
     # TODO : make logfail passed from user input 
+    # TIPs: change file suffix with python lib : "from pathlib import Path"
     if logfail:
-        fdfail = logfile.replace('log','fail')
-        print('===== Log failure at:',fdfail)
+    # TODO: elegant create new file 
+        p = Path(logfile)
+        log4fail =p.with_suffix('.fail').name
+        with open(log4fail,'wt'):
+            pass
+        print('===== Log failure at:',log4fail)
+
     resuList = []
+    # "with..open" file with little known mode "wt"(py3 only)
     with open(logfile,'r') as f:
     # 2018/04/07 : working version
         #for result in re.finditer(r"(?P<errname>@@@@ (?:First error msg).*$)(?:(?:\n|.)*?)(?P<testid>(?:&&&&) (?:PASSED|FAILED|WAIVED) cudnnTest.*$)",f.read(),re.MULTILINE):
@@ -32,13 +43,15 @@ def TestFilter(logfile, keyword, logfail=True):
                 for t in testItem:
                     print(t['testid'])
                     if logfail:
-                        print(t['errname'],t['testid'],file=fdfail)
+                        with open(log4fail,'a') as fdfail:
+                            print(t['errname'],t['testid'],file=fdfail)
         else:
             print('=============    ',err)
             for t in testItem:
                 print(t['testid'])
                 if logfail:
-                    print(t['errname'],t['testid'],file=fdfail)
+                    with open(log4fail,'a') as fdfail:
+                        print(t['errname'],t['testid'],file=fdfail)
            
 if __name__=="__main__":
     import sys
