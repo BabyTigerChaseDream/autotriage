@@ -8,9 +8,6 @@ from testparser import *
 import subprocess as sub 
 import os
 
-# data parse module
-from collections import namedtuple
-
 """
 receive info from uuid parser, deal with different kinds of failure 
 - notrun : rerun (check historyof test and build/hw see if hw issue)
@@ -49,8 +46,7 @@ def DownloadFd(TestEntry, uuid):
     log = TestEntry['log']
     # called module fdfetcher's "func:: wget"
     # wget(serverDir,pattern,localDir)
-    os.system("wget -r -l1 --no-parent --cut-dirs=10 -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
-    print("[cmd] wget -r -l1 --no-parent --cut-dirs=10 -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
+    os.system("wget -r -l1 -R \"index.*\" --no-parent --cut-dirs=10 -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
 
     # exec cmd at localDir , for unzip 
     os.chdir(localDir)
@@ -70,10 +66,7 @@ def DownloadFd(TestEntry, uuid):
     if stdout is None:
         print("[!!!] {log} download FAILED [!!!]".format_map(vars()))
     
-    DnldTuple = namedtuple('DnldTuple', ['path', 'log'])
-    
-    #print('******DnldTuple*******,',localDir, '======',stdout.decode('utf-8').strip())
-    return DnldTuple(localDir,stdout.decode('utf-8').strip())
+    return localDir,stdout.decode('utf-8').strip()
 
 """ get full local log path : def DownloadFd(TestEntry, uuid) 
     Then pass it to "testparser.py" -> [func] TestFilter

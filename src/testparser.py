@@ -3,12 +3,16 @@ from operator import itemgetter
 from itertools import groupby
 import re
 
-def TestFilter(logfile, keyword):
+def TestFilter(logfile, keyword, logfail=True):
     print(' Start parsing log ...\n\t %s \n'% logfile)
     # TODO : wordaround bug in autotriage download_list
     if not logfile.endswith('log'):
         print("[Err] Wrong format log !!!")
         return 
+    # TODO : make logfail passed from user input 
+    if logfail:
+        fdfail = logfile.replace('log','fail')
+        print('===== Log failure at:',fdfail)
     resuList = []
     with open(logfile,'r') as f:
     # 2018/04/07 : working version
@@ -27,10 +31,14 @@ def TestFilter(logfile, keyword):
                 print('===== [matched] =====   ',err)
                 for t in testItem:
                     print(t['testid'])
+                    if logfail:
+                        print(t['errname'],t['testid'],file=fdfail)
         else:
             print('=============    ',err)
             for t in testItem:
                 print(t['testid'])
+                if logfail:
+                    print(t['errname'],t['testid'],file=fdfail)
            
 if __name__=="__main__":
     import sys

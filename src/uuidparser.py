@@ -163,6 +163,7 @@ def GetCompleteBuildList(uuid, keyword=None):
      Get failed/notrun/abort items from overall Results List
     #########################################################
 """
+## TODO : readability: keyword for WHICH field ???
 def FilterResuList(ResuListAll, keyword=None):    
     """
     keyword can be : failed/nortun/abort/passed(normally ignored)

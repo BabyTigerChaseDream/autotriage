@@ -25,6 +25,9 @@ standard Python module
 import argparse 
 import os 
 
+# data parse module
+from collections import namedtuple
+
 """
 Private module for triage 
 """
@@ -76,18 +79,22 @@ if __name__=="__main__":
         # show suite supports fail log download/parse only 
         # no need to parse PASS log 
         elif arglist.show == 'suite':
+            DnldTuple = namedtuple('DnldTuple', ['tsuite','cid','pathlog'])
             download_list = []
             if arglist.tsuite:
                 for t in GetCompleteTestList(uuid, "failed"):
                 # TODO : change arglist.tsuite to support list 
                     if arglist.tsuite in t['tsuite']: 
-                       download_list.append(DownloadFd(t, uuid))
+                       download_list.append(DnldTuple(t['tsuite'],t['cid'],DownloadFd(t, uuid)))
             # else download all failed suite's log file 
             else:
                 for t in GetCompleteTestList(uuid, "failed"):
-                    download_list.append(DownloadFd(t, uuid))
+                    download_list.append(DnldTuple(t['tsuite'],t['cid'],DownloadFd(t, uuid)))
             
             print('====== Download Done !!! ====== \n')
             for d in download_list:
-                TestFilter(os.path.join(*d),'FAILED')
+                print('####################\n[##### SUM TABLE #####]',d.tsuite,d.cid)
+                # TODO: optimize data structure 
+                # os.path.join() argument must be str or bytes, not 'tuple'
+                TestFilter(os.path.join(*d.pathlog),'FAILED')
                 
