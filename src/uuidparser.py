@@ -97,8 +97,8 @@ def GetTestTable(uuid):
     # if suite has "pass/fail/notrun" 3 kinds of status, entry in order of : pass -> fail -> notrun 
     # regex below catches only pass -> failed(so only need {1,2}, no need catch 3rd ent if exist ) , 
     # when notrun(actual test timeout) with pass/fail , we ignore it
-    #for ent in re.finditer(r'badge-(?P<resu>\w+)\'>(?P<info>[\w\d\s]+)<(?:.+?)&testSuiteNameText=(?P<tsuite>\w+)&erisConfigID=(?P<cid>\d+)(?:.+?)(?:(?:&hostName=(?P<hw>eris-\w+-\w+)&phase=(?P<log>\w+))|(?:Log file was not created))',urlstring):
-    for ent in re.finditer(r'(?:badge-(?P<resu>failed|passed|notrun|aborted)\'>(?P<info>[\w\d\s]+)<(?:.+?)){1,2}&testSuiteNameText=(?P<tsuite>\w+)&erisConfigID=(?P<cid>\d+)(?:.+?)(?:(?:&hostName=(?P<hw>eris-\w+-\w+)&phase=(?P<log>\w+))|(?:Log file was not created))',urlstring):
+    #for ent in re.finditer(r'badge-(?P<resu>\w+)\'>(?P<info>[\w\d\s]+)<(?:.+?)&testSuiteNameText=(?P<suite>\w+)&erisConfigID=(?P<cid>\d+)(?:.+?)(?:(?:&hostName=(?P<hw>eris-\w+-\w+)&phase=(?P<log>\w+))|(?:Log file was not created))',urlstring):
+    for ent in re.finditer(r'(?:badge-(?P<resu>failed|passed|notrun|aborted)\'>(?P<info>[\w\d\s]+)<(?:.+?)){1,2}&testSuiteNameText=(?P<suite>\w+)&erisConfigID=(?P<cid>\d+)(?:.+?)(?:(?:&hostName=(?P<hw>eris-\w+-\w+)&phase=(?P<log>\w+))|(?:Log file was not created))',urlstring):
         resuList.append(ent.groupdict())
     return resuList
 

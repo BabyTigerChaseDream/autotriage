@@ -45,17 +45,18 @@ if __name__=="__main__":
     # show command group 
     parser.add_argument('-u', action='store', dest='uuid', default=None, required=True, help='Eris uuid')
     # TODO: regex format "-k"
-    parser.add_argument('-k', action='store', dest='keyword', default=None, help='keyword filter contents')
+    parser.add_argument('-k', action='store', dest='keyword', default=None, choices=['passed','failed','notrun','aborted'], help='\'resu\' keyword filter:notrun/failed/passed/aborted/ ')
+    parser.add_argument('-d', action='store_true', dest='detail', default=False, help='list testid/err in suites')
     # TODO: to restrict -s to follow "show suite only "
     # suite name -- show one suite 
     # below version supports list param 
-    # parser.add_argument('-tsuite', action='store', dest='tsuite', nargs='+', help='select test suite to show detail')
     
     # single string version 
-    parser.add_argument('-tsuite', action='store', dest='tsuite', default=None, help='select test suite to show detail')
+    # support LIST type suite in cli
+    parser.add_argument('-n', action='store', dest='name', default=None, help='select test suite to parse')
     # mutual exclusive group
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-sh', action='store', dest='show', default=None, choices=['build','test','suite'], help='show specify dataset')
+    group.add_argument('-sh', action='store', dest='show', default=None, choices=['build','test','suite'], help='show specify result:test/build/suite')
     group.add_argument('-diff', action='store', dest='diff', default=None, choices=['build','test'], help='diff between 2 tests/build')
     group.add_argument('-exec', action='store', dest='exec', default=None, help='submit test/build cmdline to Eris')
     
@@ -68,34 +69,37 @@ if __name__=="__main__":
     uuid = arglist.uuid
     # TODO : better exclusive subparam among(sh/diff/exec)
     if arglist.show:
+        detail = arglist.detail
     #TODO : keep uuid overall result table:: load once and ONLY once !!!
         if arglist.show == 'test':
+            print('============ Overall =============')
             for t in GetCompleteTestList(uuid, arglist.keyword):
-                print(t['tsuite'],t['resu'],t['info'],t['cid'],t['hw'],t['log'], sep=' | ')
+                print(t['suite'],t['resu'],t['info'],t['cid'],t['hw'],t['log'], sep=' | ')
                 #print(t.values())
-        elif arglist.show == 'build':
-            for t in GetCompleteBuildList(uuid, arglist.keyword):
-                print(t['resu'],t['info'],t['comp'],t['cid'],t['hw'],t['log'], sep=' | ')
-        # show suite supports fail log download/parse only 
-        # no need to parse PASS log 
+            print('=====================================')
+            # sub-arg for "show test"
         elif arglist.show == 'suite':
-            DnldTuple = namedtuple('DnldTuple', ['tsuite','cid','pathlog'])
+            DnldTuple = namedtuple('DnldTuple', ['suite','cid','pathlog'])
             download_list = []
-            if arglist.tsuite:
+            if arglist.name:
                 for t in GetCompleteTestList(uuid, "failed"):
-                # TODO : change arglist.tsuite to support list 
-                    if arglist.tsuite in t['tsuite']: 
-                       download_list.append(DnldTuple(t['tsuite'],t['cid'],DownloadFd(t, uuid)))
-            # else download all failed suite's log file 
+                # TODO : change arglist.suite to support list 
+                    if arglist.name in t['suite']: 
+                       download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid)))
+            # else download all failed suite name's log 
             else:
                 for t in GetCompleteTestList(uuid, "failed"):
-                    download_list.append(DnldTuple(t['tsuite'],t['cid'],DownloadFd(t, uuid)))
+                    download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid)))
             
             print('====== Download Done !!! ====== \n')
 
             for d in download_list:
-                print('####################\n[##### SUM TABLE #####]',d.tsuite,d.cid)
+                print('####################\n[##### SUM TABLE #####]',d.suite,d.cid)
                 # TODO: optimize data structure 
                 # os.path.join() argument must be str or bytes, not 'tuple'
-                TestFilter(os.path.join(*d.pathlog),'FAILED')
+                TestFilter(os.path.join(*d.pathlog),'FAILED',detail=detail)
+            
+        elif arglist.show == 'build':
+            for t in GetCompleteBuildList(uuid, arglist.keyword):
+                print(t['resu'],t['info'],t['comp'],t['cid'],t['hw'],t['log'], sep=' | ')
                 

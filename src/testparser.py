@@ -7,7 +7,7 @@ import re
 # file/path lib
 from pathlib import Path
 
-def TestFilter(logfile, keyword, logfail=True):
+def TestFilter(logfile, keyword, logfail=False, detail=True):
     print(' Start parsing log ...\n\t %s \n'% logfile)
     # TODO : wordaround bug in autotriage download_list
     if not logfile.endswith('log'):
@@ -40,18 +40,16 @@ def TestFilter(logfile, keyword, logfail=True):
             # check if any keyword match testid (PASS/FAILED/WAIVED) 
             if any(filter(lambda t: keyword in t['testid'], testItem)):
                 print('===== [matched] =====   ',err)
-                for t in testItem:
-                    print(t['testid'])
-                    if logfail:
-                        with open(log4fail,'a') as fdfail:
-                            print(t['errname'],t['testid'],file=fdfail)
-        else:
-            print('=============    ',err)
-            for t in testItem:
-                print(t['testid'])
+                [print(t['testid']) for t in testItem if detail]
                 if logfail:
                     with open(log4fail,'a') as fdfail:
-                        print(t['errname'],t['testid'],file=fdfail)
+                        [print(t['errname'],t['testid'],file=fdfail) for t in testItem]
+        else:
+            print('=============    ',err)
+            [print(t['testid']) for t in testItem if detail]
+            if logfail:
+                with open(log4fail,'a') as fdfail:
+                    [print(t['errname'],t['testid'],file=fdfail) for t in testItem]
            
 if __name__=="__main__":
     import sys

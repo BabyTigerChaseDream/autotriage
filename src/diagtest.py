@@ -13,7 +13,7 @@ receive info from uuid parser, deal with different kinds of failure
 
 global testCmd 
 # TODO: [advance] force-test-system/force-build-system/
-testCmd = "vulcan -v --eris -user jiag --product={vlcp} --target-gpu {gpu} --target-os {os} --target-arch {arch} --testsuite {tsuite} --target-revision=cl-{commit} --tags {tags}"
+testCmd = "vulcan -v --eris -user jiag --product={vlcp} --target-gpu {gpu} --target-os {os} --target-arch {arch} --testsuite {suite} --target-revision=cl-{commit} --tags {tags}"
 
 # can interact with user 
 # to change vulcan cmd param
@@ -21,16 +21,16 @@ testCmd = "vulcan -v --eris -user jiag --product={vlcp} --target-gpu {gpu} --tar
  func : rerun deal with notrun(subtimeout)/failed(BADINSTALL)/aborted test 
 """
 """ TestList: 
-    ==> {'resu': 'notrun', 'tsuite': 'cudnn_layer_tests', 'log': None, 'cid': ('gp100sxm2', 'ppc64le', 'RHEL7_3'), 'info': 'Dependency Failed', 'hw': None}
+    ==> {'resu': 'notrun', 'suite': 'cudnn_layer_tests', 'log': None, 'cid': ('gp100sxm2', 'ppc64le', 'RHEL7_3'), 'info': 'Dependency Failed', 'hw': None}
 """
 def reRun(TestEntry, vlcp, interact=False, cl='tot'):
     # can groupby same [suite]/os/gpu together and submit all in one 
     ### expand "cid" 
-    gpu,os,arch,tsuite,resu,info = *TestEntry['cid'],TestEntry['tsuite'],TestEntry['resu'],TestEntry['info'], 
+    gpu,os,arch,suite,resu,info = *TestEntry['cid'],TestEntry['suite'],TestEntry['resu'],TestEntry['info'], 
     # TODO: name a good tag - like unique ID 
-    tags ='#'.join((gpu,os,arch,tsuite,resu,info)) 
+    tags ='#'.join((gpu,os,arch,suite,resu,info)) 
     #cmdlind = testCmd.format_map(vars())
-    cmdlind = "vulcan -v --eris -user jiag --product={vlcp} --target-gpu {gpu} --target-os {os} --target-arch {arch} --testsuite {tsuite} --target-revision=cl-{commit} --tags {tags}".format_map(vars())
+    cmdlind = "vulcan -v --eris -user jiag --product={vlcp} --target-gpu {gpu} --target-os {os} --target-arch {arch} --testsuite {suite} --target-revision=cl-{commit} --tags {tags}".format_map(vars())
     print(cmdline)
     # TODO: os.system ?
     return cmdline
