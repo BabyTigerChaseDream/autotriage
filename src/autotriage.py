@@ -34,7 +34,7 @@ Private module for triage
 from fdfetcher import *
 from testparser import *
 from uuidparser import *
-from diagtest import *
+#from diagtest import *
 
 ####################
 #####   main   #####`

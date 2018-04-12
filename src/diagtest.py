@@ -4,9 +4,6 @@
 from fdfetcher import *
 from testparser import *
 
-# OS module 
-import subprocess as sub 
-import os
 
 """
 receive info from uuid parser, deal with different kinds of failure 
@@ -38,41 +35,6 @@ def reRun(TestEntry, vlcp, interact=False, cl='tot'):
     # TODO: os.system ?
     return cmdline
 
-### download log and parse it ###
-def DownloadFd(TestEntry, uuid):
-    serverDir = os.path.join("http://eris-fs000/logs/",uuid)
-    pattern = '*'.join((TestEntry['hw'],TestEntry['log'],'zip'))
-    localDir = os.path.join("/home/jia/workspace/download/triage/logs/",uuid)
-    log = TestEntry['log']
-    # called module fdfetcher's "func:: wget"
-    # wget(serverDir,pattern,localDir)
-    os.system("wget -r -l1 -R \"index.*\" --no-parent --cut-dirs=10 -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
-
-    # exec cmd at localDir , for unzip 
-    os.chdir(localDir)
-    # unzip all zip files in localDir(must be absolute path)
-    for item in os.listdir(localDir):
-        if item.endswith('.zip'):
-            cmd="unzip %s && rm %s" % (item,item)
-            #print('unzip ==> ',cmd)
-            os.system(cmd)  
-
-    # TODO : get real fd name, no "*" in it , use glob/fmatch ?
-    cmd = "ls {localDir} | grep {log}".format_map(vars())
-    print("[cmd] ", cmd)
-    proc=sub.Popen(cmd, bufsize=1, shell=True, stdout=sub.PIPE, stderr=sub.PIPE)
-    # get stdout/stderr
-    stdout,stderr = proc.communicate()
-    if stdout is None:
-        print("[!!!] {log} download FAILED [!!!]".format_map(vars()))
-    
-    return localDir,stdout.decode('utf-8').strip()
-
-""" get full local log path : def DownloadFd(TestEntry, uuid) 
-    Then pass it to "testparser.py" -> [func] TestFilter
-"""
-
-    
 """
  Handler to filter Test Table as expected 
 """

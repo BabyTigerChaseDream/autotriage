@@ -10,7 +10,9 @@
 # -rel <http path> -i <rel ver> -pat <file pattern/name> (default path: /ws/fd/rel/uuid)
 ################################################
 
+# OS module 
 import sys, os, errno
+import subprocess as sub 
 
 dbg =True 
 
@@ -95,6 +97,43 @@ def wget(serverDir,pattern,localDir):
     print("\n")
     cmdshow = "ls -al {localDir}".format_map(vars())
     os.system(cmdshow)
+
+""" get full local log path : def DownloadFd(TestEntry, uuid) 
+    Then pass it to "testparser.py" -> [func] TestFilter
+"""
+### download log and parse it ###
+def DownloadFd(TestEntry, uuid):
+    serverDir = os.path.join("http://eris-fs000/logs/",uuid)
+    # some file is HUGE , ends with log NOT zip , so in "pattern" , used * instead 
+    pattern = '*'.join((TestEntry['hw'],TestEntry['log'],'*'))
+
+    localDir = os.path.join("/home/jia/workspace/download/triage/logs/",uuid)
+    log = TestEntry['log']
+    # called module fdfetcher's "func:: wget"
+    # wget(serverDir,pattern,localDir)
+    os.system("wget -r -l1 -R \"index.*\" --no-parent --cut-dirs=10 -R \"index.html*\" -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
+
+    # exec cmd at localDir , for unzip 
+    os.chdir(localDir)
+    # unzip all zip files in localDir(must be absolute path)
+    for item in os.listdir(localDir):
+        if item.endswith('.zip'):
+            cmd="unzip %s && rm %s" % (item,item)
+            #print('unzip ==> ',cmd)
+            os.system(cmd)  
+
+    # TODO : get real fd name, no "*" in it , use glob/fmatch ?
+    #cmd = "ls {localDir} | grep {log}".format_map(vars())
+    # needs 2 wildcat "*"
+    cmd = "find {localDir} -name *{log}*.log".format_map(vars())
+    print("[cmd] ", cmd)
+    proc=sub.Popen(cmd, bufsize=1, shell=True, stdout=sub.PIPE, stderr=sub.PIPE)
+    # get stdout/stderr
+    stdout,stderr = proc.communicate()
+    if stdout is None:
+        print("[!!!] {log} download FAILED [!!!]".format_map(vars()))
+    
+    return localDir,stdout.decode('utf-8').strip()
 
 ####################
 #####   main   #####
