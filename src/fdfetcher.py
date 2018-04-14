@@ -70,10 +70,10 @@ def wget(serverDir,pattern,localDir):
     if pattern:
         # if pattern specified
         # --cut-dirs set "super large" Num
-        cmd = "wget -r -l1 --no-parent --cut-dirs=10 -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars())
+        cmd = "wget -q -nc -r -l1 --no-parent --cut-dirs=10 -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars())
     else:
         # download all files in http , if no pattern specified  
-        cmd = "wget -r -nH -np --cut-dirs=10 -R \"index.html*\" {serverDir} -P {localDir}".format_map(vars())
+        cmd = "wget -q -nc -r -nH -np --cut-dirs=10 -R \"index.html*\" {serverDir} -P {localDir}".format_map(vars())
 
     if dbg:
         print('cmd ==>\n',cmd)
@@ -111,7 +111,7 @@ def DownloadFd(TestEntry, uuid):
     log = TestEntry['log']
     # called module fdfetcher's "func:: wget"
     # wget(serverDir,pattern,localDir)
-    os.system("wget -r -l1 -R \"index.*\" --no-parent --cut-dirs=10 -R \"index.html*\" -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
+    os.system("wget -q -nc -r -l1 -R \"index.*\" --no-parent --cut-dirs=10 -R \"index.html*\" -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
 
     # exec cmd at localDir , for unzip 
     os.chdir(localDir)
