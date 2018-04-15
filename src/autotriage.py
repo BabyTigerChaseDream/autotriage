@@ -50,10 +50,7 @@ if __name__=="__main__":
     parser.add_argument('-d', action='store_true', dest='detail', default=False, help='list testid/err in suites')
     # TODO: to restrict -s to follow "show suite only "
     # suite name -- show one suite 
-    # below version supports list param 
-    
-    # single string version 
-    # support LIST type suite in cli
+    # TODO: supports list param 
     parser.add_argument('-n', action='store', dest='name', default=None, help='select test suite to parse')
     # mutual exclusive group
     group = parser.add_mutually_exclusive_group(required=True)
@@ -70,7 +67,6 @@ if __name__=="__main__":
     uuid = arglist.uuid
     # TODO : better exclusive subparam among(sh/diff/exec)
     if arglist.show:
-        detail = arglist.detail
     #TODO : keep uuid overall result table:: load once and ONLY once !!!
         if arglist.show == 'test':
             print('============ Overall =============')
@@ -86,11 +82,11 @@ if __name__=="__main__":
                 for t in GetCompleteTestList(uuid, "failed"):
                 # TODO : change arglist.suite to support list 
                     if arglist.name in t['suite']: 
-                       download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid)))
+                       download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid, force=arglist.force)))
             # else download all failed suite name's log 
             else:
                 for t in GetCompleteTestList(uuid, "failed"):
-                    download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid)))
+                    download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid, force=arglist.force)))
             
             print('====== Download Done !!! ====== \n')
 
@@ -98,7 +94,7 @@ if __name__=="__main__":
                 print('####################\n[##### SUM TABLE #####]',d.suite,d.cid)
                 # TODO: optimize data structure 
                 # os.path.join() argument must be str or bytes, not 'tuple'
-                TestFilter(os.path.join(*d.pathlog),'FAILED',detail=detail)
+                TestFilter(os.path.join(*d.pathlog),'FAILED',detail=arglist.detail)
             
         elif arglist.show == 'build':
             for t in GetCompleteBuildList(uuid, arglist.keyword):
