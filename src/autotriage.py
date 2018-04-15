@@ -44,6 +44,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description='Auto Parse Eris uuid: test/build results')
     # show command group 
     parser.add_argument('-u', action='store', dest='uuid', default=None, required=True, help='Eris uuid')
+    parser.add_argument('-f', action='store_true', dest='force', default=False, help='force pull data from url')
     # TODO: regex format "-k"
     parser.add_argument('-k', action='store', dest='keyword', default=None, choices=['passed','failed','notrun','aborted'], help='\'resu\' keyword filter:notrun/failed/passed/aborted/ ')
     parser.add_argument('-d', action='store_true', dest='detail', default=False, help='list testid/err in suites')
@@ -73,9 +74,9 @@ if __name__=="__main__":
     #TODO : keep uuid overall result table:: load once and ONLY once !!!
         if arglist.show == 'test':
             print('============ Overall =============')
-            for t in GetCompleteTestList(uuid, arglist.keyword):
+            for t in GetCompleteTestList(uuid, keyword=arglist.keyword, force=arglist.force):
                 print(t['suite'],t['resu'],t['info'],t['cid'],t['hw'],t['log'], sep=' | ')
-                #print(t.values())
+
             print('=====================================')
             # sub-arg for "show test"
         elif arglist.show == 'suite':

@@ -13,7 +13,7 @@ parse info from uuid
 """
 
 # system mod 
-import sys
+import sys, os
 # web mod 
 import ssl
 from urllib.request import urlopen
@@ -22,6 +22,12 @@ from operator import itemgetter
 from itertools import groupby
 # other mod 
 import re
+# data process module
+import csv
+
+# self-defined mod 
+from fdfetcher import *
+
 
 global resuList
 resuList = []
@@ -136,14 +142,38 @@ def ConfigStrUpdate(ResuList, configMap):
     return ResuList
 
 # autotriage cmd "show test" 
-def GetCompleteTestList(uuid, keyword=None):
-    testList = FilterResuList(GetTestTable(uuid),keyword)
-    cidSet = ConfigIDSet(testList)
-    # below got "cid:{os,arch,gpu}" dict group
-    configMap = MapConfigID2Str(cidSet)
-    
-    CompleteTestList = ConfigStrUpdate(testList, configMap)
-    
+def GetCompleteTestList(uuid, keyword=None, force=False):
+   # TODO : use "logging" ?
+    uuidcsv = os.path.join(locTrgdir,uuid,uuid+'.csv')
+    CompleteTestList = []
+    if not force and \
+        os.path.exists(uuidcsv) and \
+        os.stat(uuidcsv).st_size > 0:
+        # just read previous uuid.log content if exists 
+        with open(uuidcsv,'r') as fd:
+            fd_csv = csv.DictReader(fd)
+            if keyword is None:
+                for row in fd_csv:
+                    CompleteTestList.append(row)
+            else:
+                for row in fd_csv:
+                    if keyword in row['resu']: 
+                        CompleteTestList.append(row)
+    else:
+        testList = FilterResuList(GetTestTable(uuid),keyword)
+        cidSet = ConfigIDSet(testList)
+        # below got "cid:{os,arch,gpu}" dict group
+        configMap = MapConfigID2Str(cidSet)
+        
+        CompleteTestList = ConfigStrUpdate(testList, configMap)
+        headers = list(CompleteTestList[0].keys())
+        
+        # first time load , has to be FULL, ignore "key" here 
+        with open(uuidcsv,'wt') as fd:
+            fd_csv = csv.DictWriter(fd, headers)
+            fd_csv.writeheader()
+            fd_csv.writerows(CompleteTestList)
+        print("Write to :",uuidcsv)
     # list 
     return CompleteTestList
 
