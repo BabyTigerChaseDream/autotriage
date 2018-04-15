@@ -34,6 +34,7 @@ Private module for triage
 from fdfetcher import *
 from testparser import *
 from uuidparser import *
+from difftest import *
 #from diagtest import *
 
 ####################
@@ -43,7 +44,14 @@ if __name__=="__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Auto Parse Eris uuid: test/build results')
     # show command group 
-    parser.add_argument('-u', action='store', dest='uuid', default=None, required=True, help='Eris uuid')
+    parser.add_argument('-u', action='store', dest='uuid', default=None, help='Eris uuid')
+    # show diff param 
+    # -c will be passed as "list" easy to handle by "set()"
+    parser.add_argument('-com', action='store', dest='combo', default=None, help='suitename,configID : combination')
+    parser.add_argument('-unew', action='store', dest='uuidnew', default=None, help='Newer uuid')
+    parser.add_argument('-uold', action='store', dest='uuidold', default=None, help='old uuid')
+    #parser.add_argument('-t', action='store', dest='tag', default=None, required=True, help='test tag:new/old/fixed failure')
+
     parser.add_argument('-f', action='store_true', dest='force', default=False, help='force pull data from url')
     # TODO: regex format "-k"
     parser.add_argument('-k', action='store', dest='keyword', default=None, choices=['passed','failed','notrun','aborted'], help='\'resu\' keyword filter:notrun/failed/passed/aborted/ ')
@@ -66,6 +74,11 @@ if __name__=="__main__":
     """
     uuid = arglist.uuid
     # TODO : better exclusive subparam among(sh/diff/exec)
+    """ 
+        'show cmd' support 
+        ->  -sh test
+        ->  -sh suite -n "suitename"
+    """
     if arglist.show:
     #TODO : keep uuid overall result table:: load once and ONLY once !!!
         if arglist.show == 'test':
@@ -99,4 +112,30 @@ if __name__=="__main__":
         elif arglist.show == 'build':
             for t in GetCompleteBuildList(uuid, arglist.keyword):
                 print(t['resu'],t['info'],t['comp'],t['cid'],t['hw'],t['log'], sep=' | ')
-                
+        else:
+            pass
+    ############################################################################################
+    #### Diff 'cmd' support 
+    ####    ->  -diff -unew [new uuid] -uold [old uuid] -com [suite,config] -t [new/old/fixed]
+    ############################################################################################
+    # TODO: optimize search algo 
+    elif arglist.diff:
+        pass
+    #    fd_uuidnew = ''
+    #    fd_uuidold = ''
+    #    print('[DBG] combo is:',arglist.combo)
+    #    # Get new uuid log
+    #    for t in GetCompleteTestList(arglist.uuidnew):
+    #        newCombo = (arglist.combo).split(',')
+    #        if set(newCombo) in set((t['suite'],t['cid'])):
+    #            fd_uuidnew = os.path.join(DownloadFd(t, uuidnew))
+    #            print('[DBG] fd_uuidnew is:',fd_uuidnew)
+    #    # Get old uuid log
+    #    for t in GetCompleteTestList(arglist.uuidold):
+    #        oldCombo = (arglist.combo).split(',')
+    #        if set(oldCombo) in set((t['suite'],t['cid'])):
+    #            fd_uuidold = os.path.join(DownloadFd(t, uuidold))
+    #            print('[DBG] fd_uuidold is:',fd_uuidold)                
+
+    #    # start compare 
+    #    DiffTests(fd_uuidnew,fd_uuidold)
