@@ -94,12 +94,19 @@ if __name__=="__main__":
             if arglist.name:
                 for t in GetCompleteTestList(uuid, "failed"):
                 # TODO : change arglist.suite to support list 
-                    if arglist.name in t['suite']: 
-                       download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid, force=arglist.force)))
+                    # failed with Eris Infra , no log 
+                    # [Note] When transferred by csv , element will be '' (empty string)
+                    if arglist.name in t['suite'] and \
+                        t['hw'] and \
+                        t['log']: 
+                        download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid, force=arglist.force)))
             # else download all failed suite name's log 
             else:
                 for t in GetCompleteTestList(uuid, "failed"):
-                    download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid, force=arglist.force)))
+                    # failed with Eris Infra , no log , 'hw':None/'log':None
+                    # [Note] When transferred by csv , element will be '' (empty string)
+                    if t['hw'] and t['log']:
+                        download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid, force=arglist.force)))
             
             print('====== Download Done !!! ====== \n')
 
