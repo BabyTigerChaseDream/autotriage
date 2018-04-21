@@ -118,6 +118,7 @@ def DownloadFd(TestEntry, uuid, force=False):
     else:
         # called module fdfetcher's "func:: wget"
         # wget(serverDir,pattern,localDir)
+        print("[DBG] wget -q -nc -r -l1 -R \"index.*\" --no-parent --cut-dirs=10 -R \"index.html*\" -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
         os.system("wget -q -nc -r -l1 -R \"index.*\" --no-parent --cut-dirs=10 -R \"index.html*\" -nH -np -A \"{pattern}\" {serverDir} -P {localDir}".format_map(vars()))
 
         # exec cmd at localDir , for unzip 

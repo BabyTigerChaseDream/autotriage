@@ -92,7 +92,7 @@ if __name__=="__main__":
             DnldTuple = namedtuple('DnldTuple', ['suite','cid','pathlog'])
             download_list = []
             if arglist.name:
-                for t in GetCompleteTestList(uuid, "failed"):
+                for t in GetCompleteTestList(uuid, "failed", force=arglist.force):
                 # TODO : change arglist.suite to support list 
                     # failed with Eris Infra , no log 
                     # [Note] When transferred by csv , element will be '' (empty string)
@@ -102,7 +102,7 @@ if __name__=="__main__":
                         download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid, force=arglist.force)))
             # else download all failed suite name's log 
             else:
-                for t in GetCompleteTestList(uuid, "failed"):
+                for t in GetCompleteTestList(uuid, "failed", force=arglist.force):
                     # failed with Eris Infra , no log , 'hw':None/'log':None
                     # [Note] When transferred by csv , element will be '' (empty string)
                     if t['hw'] and t['log']:
@@ -127,22 +127,9 @@ if __name__=="__main__":
     ############################################################################################
     # TODO: optimize search algo 
     elif arglist.diff:
-        pass
-    #    fd_uuidnew = ''
-    #    fd_uuidold = ''
-    #    print('[DBG] combo is:',arglist.combo)
-    #    # Get new uuid log
-    #    for t in GetCompleteTestList(arglist.uuidnew):
-    #        newCombo = (arglist.combo).split(',')
-    #        if set(newCombo) in set((t['suite'],t['cid'])):
-    #            fd_uuidnew = os.path.join(DownloadFd(t, uuidnew))
-    #            print('[DBG] fd_uuidnew is:',fd_uuidnew)
-    #    # Get old uuid log
-    #    for t in GetCompleteTestList(arglist.uuidold):
-    #        oldCombo = (arglist.combo).split(',')
-    #        if set(oldCombo) in set((t['suite'],t['cid'])):
-    #            fd_uuidold = os.path.join(DownloadFd(t, uuidold))
-    #            print('[DBG] fd_uuidold is:',fd_uuidold)                
-
-    #    # start compare 
-    #    DiffTests(fd_uuidnew,fd_uuidold)
+        newResuList = GetCompleteTestList(arglist.uuidnew, force=arglist.force)
+        oldResuList = GetCompleteTestList(arglist.uuidold, force=arglist.force)
+        FList = newResuList + oldResuList
+        GroupUUID(FList)
+        # start compare 
+        #DiffTests(fd_uuidnew,fd_uuidold)

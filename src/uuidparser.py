@@ -160,6 +160,7 @@ def GetCompleteTestList(uuid, keyword=None, force=False):
                     if keyword in row['resu']: 
                         CompleteTestList.append(row)
     else:
+        MakeDir(os.path.join(locTrgdir,uuid))
         testList = FilterResuList(GetTestTable(uuid),keyword)
         cidSet = ConfigIDSet(testList)
         # below got "cid:{os,arch,gpu}" dict group
