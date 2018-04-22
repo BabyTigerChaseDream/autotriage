@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 
 from operator import itemgetter 
 from itertools import groupby
@@ -18,10 +19,14 @@ def TestFilter(logfile, keyword=None, logfail=True, detail=True):
     if logfail:
     # TODO: elegant create new file 
         p = Path(logfile)
-        log4fail =p.with_suffix('.fail').name
+        
+        logpath, logname = os.path.split(logfile)
+        
+        log4fail = os.path.join(logpath,p.with_suffix('.fail').name)
+
         with open(log4fail,'wt'):
             pass
-        print('===== Log failure at:',log4fail)
+        #print('===== Log failure at:',log4fail)
 
     resuList = []
     # "with..open" file with little known mode "wt"(py3 only)
@@ -44,6 +49,7 @@ def TestFilter(logfile, keyword=None, logfail=True, detail=True):
                     if detail:
                         for t in testItem:
                             #print(t['testid'])
+                            #TODO:  write to csv easy to sort
                             print(t['errname'],t['testid'],file=fdfail)
         else:
             with open(log4fail,'a') as fdfail:
@@ -51,6 +57,7 @@ def TestFilter(logfile, keyword=None, logfail=True, detail=True):
                 if detail:
                     for t in testItem:
                         #print(t['testid'])
+                        #TODO:  write to csv easy to sort
                         print(t['errname'],t['testid'],file=fdfail)
                 
     return log4fail

@@ -33,21 +33,21 @@ def DiffTests(nfd,ofd,sum=None):
     with open(nfd, 'r') as newfd, open(ofd, 'r') as oldfd:
         oldfail = set(newfd).intersection(oldfd)
         print('\n####################\n[##### OLD #####]')
-        for i in oldfail:
+        for i in sorted(oldfail):
             print(i.strip())
 
     with open(nfd, 'r') as newfd, open(ofd, 'r') as oldfd:    
         # legacy fail
         newfail = set(newfd)-set(oldfd)    
         print('\n####################\n[##### New #####]')
-        for i in newfail:
+        for i in sorted(newfail):
             print(i.strip())
 
     with open(nfd, 'r') as newfd, open(ofd, 'r') as oldfd:
         # failure in old but pass in new 
         fixedfail = set(oldfd)-set(newfd)    
         print('\n####################\n[##### FIXED #####]')
-        for i in fixedfail:
+        for i in sorted(fixedfail):
             print(i.strip())
 
 def LocateFd(path,filepat):
@@ -67,27 +67,59 @@ def GroupUUID(ResuListx2,key1='suite',key2='cid'):
     grouper = itemgetter(key1, key2)
     ResuListx2.sort(key=grouper)
     for key, testItem in groupby(ResuListx2,key=grouper):
-        print('===== [TID Groups] =====   ',key)
-        #if(len(list(testItem)) == 2):
-        # TODO: testItem can only be iterate once , ??? 
-        #print('[DBG]===> len of testItem: %d',len(list(testItem)))
-        fds= []
+        print('===== [TID Groups] =====   \n\t',key)
+        
+        ResuGroup = []
+        count  = 0
         for t in testItem:
-            #if "failed" not in t['resu']:
-            #    continue
-            print(t.values())
-            fd_log = LocateFd(locTrgdir,t['log']+'.log') if t['log'] else None
-            #print('fd_log :',fd_log)
-            if fd_log is not None:
-                fds.append(TestFilter(fd_log,keyword="FAILED",logfail=True))
-    
-        #print('==> Fds:',*fds)
-        if (len(fds)== 2) :
-            print('==> Compare Fds:',*fds)
-        ##DiffTests(*fds)
-            DiffTests(fds[0],fds[1])
+            ResuGroup.append(t) 
+            count = count + 1
+        print("Contain: %d member"%count) 
+        
+        if count == 1:
+            # nothing to compare 
+            tsuite = ResuGroup[0]
+            print("[Single suite]\n\t",tsuite.values())
+            print('====================',key)
+        elif count == 2:
+            # both suites "failed" AND both have log, makes sense to DIFF 
+            t1,t2 = ResuGroup
+            if (t1['resu'] == 'failed' and t2['resu'] == 'failed')\
+                and t1['log'] \
+                and t2['log']:
+                    print("[Diff suite]\n")
+                    print("\t",t1.values())
+                    print("\t",t2.values())
+                    print('====================',key)  
+
+                    log1 = LocateFd(locTrgdir,t1['log']+'.log')
+                    log2 = LocateFd(locTrgdir,t2['log']+'.log')
+
+                    if log1 is None or log2 is None:
+                    # it is for "failed" on "BADDRIVER" which display 'log' but no log generated 
+                        print("[Failed to locate log in suite] Double check \n")
+                        print("\t",t1.values())
+                        print("\t",t2.values()) 
+                    else:
+                        flog1 = TestFilter(log1,keyword="FAILED",logfail=True)
+                        flog2 = TestFilter(log2,keyword="FAILED",logfail=True)
+                        print('CMP...ing :',flog1,flog2)
+                        DiffTests(flog1,flog2)
+
+            elif t1['resu'] == 'passed' or t2['resu'] == 'passed':
+                    print("[PASS in suite] Compare by testparser \n")
+                    print("\t",t1.values())
+                    print("\t",t2.values())                
+            elif not t1['log'] or not t2['log']:
+                # one log is empty
+                    print("[EMPTY log in suite] Re-Run \n")
+                    print("\t",t1.values())
+                    print("\t",t2.values()) 
         else:
-            pass
+            print('***** [WARNING] count is %d' % count)
+            for r in ResuGroup:
+                print(r)
+
                 
 if __name__=="__main__":
     import sys
