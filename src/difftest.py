@@ -101,8 +101,8 @@ def GroupUUID(ResuListx2,key1='suite',key2='cid'):
                         print("\t",t1.values())
                         print("\t",t2.values()) 
                     else:
-                        flog1 = TestFilter(log1,keyword="FAILED",logfail=True)
-                        flog2 = TestFilter(log2,keyword="FAILED",logfail=True)
+                        flog1 = TestFilter(log1,keyword="FAILED",logfail=True, diffuuid=True)
+                        flog2 = TestFilter(log2,keyword="FAILED",logfail=True, diffuuid=True)
                         print('CMP...ing :',flog1,flog2)
                         DiffTests(flog1,flog2)
 

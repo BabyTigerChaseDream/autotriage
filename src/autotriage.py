@@ -35,6 +35,7 @@ from fdfetcher import *
 from testparser import *
 from uuidparser import *
 from difftest import *
+from cmdgetter import *
 #from diagtest import *
 
 ####################
@@ -64,6 +65,7 @@ if __name__=="__main__":
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-sh', action='store', dest='show', default=None, choices=['build','test','suite'], help='show specify result:test/build/suite')
     group.add_argument('-diff', action='store', dest='diff', default=None, choices=['build','test'], help='diff between 2 tests/build')
+    group.add_argument('-get', action='store', dest='get', default=None, choices=['cmd','cfg'], help='get needs re-run eris cmdline')
     group.add_argument('-exec', action='store', dest='exec', default=None, help='submit test/build cmdline to Eris')
     
     arglist=parser.parse_args()
@@ -133,3 +135,11 @@ if __name__=="__main__":
         GroupUUID(FList)
         # start compare 
         #DiffTests(fd_uuidnew,fd_uuidold)
+    elif arglist.get:
+        #GetCompleteTestList(uuid, "failed", force=arglist.force)
+        if arglist.get == 'cmd':
+        # force to get "dict" from url, rather than read from csv(it will turn all data into "str")
+           vlcpFd=GetProd(uuid)
+           GenerateCmd(GetCompleteTestList(uuid, force=True), vlcpFd)
+            
+            

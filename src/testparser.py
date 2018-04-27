@@ -8,7 +8,9 @@ import re
 # file/path lib
 from pathlib import Path
 
-def TestFilter(logfile, keyword=None, logfail=True, detail=True):
+# uuiddiff: temp solution to hide redundent info when cmp 2 uuid 
+# while those info is needed when parse 2 suites 
+def TestFilter(logfile, keyword=None, logfail=True, detail=True, diffuuid=False):
     print(' Start parsing log ...\n\t %s \n'% logfile)
     # TODO : wordaround bug in autotriage download_list
     if not logfile.endswith('log'):
@@ -44,19 +46,21 @@ def TestFilter(logfile, keyword=None, logfail=True, detail=True):
         if keyword:
             # check if any keyword match testid (PASS/FAILED/WAIVED) 
             if any(filter(lambda t: keyword in t['testid'], testItem)):
+                if not diffuuid : print("========== [error Info] ========== \n\t%s \n" % err)
                 with open(log4fail,'a') as fdfail:
                     #print('===== [matched] =====   ',err)
                     if detail:
                         for t in testItem:
-                            #print(t['testid'])
+                            if not diffuuid : print(t['testid'])
                             #TODO:  write to csv easy to sort
                             print(t['errname'],t['testid'],file=fdfail)
         else:
+            if not diffuuid : print("========== [error Info] ========== \n\t%s \n" % err)
             with open(log4fail,'a') as fdfail:
                 #print('===== [matched] =====   ',err)
                 if detail:
                     for t in testItem:
-                        #print(t['testid'])
+                        if not diffuuid : print(t['testid'])
                         #TODO:  write to csv easy to sort
                         print(t['errname'],t['testid'],file=fdfail)
                 

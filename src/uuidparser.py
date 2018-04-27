@@ -24,6 +24,7 @@ from itertools import groupby
 import re
 # data process module
 import csv
+import json
 
 # self-defined mod 
 from fdfetcher import *
@@ -36,7 +37,8 @@ global cudnn_vlcp_dict
 
 cudnn_vlcp_dict = {
                   "CUDNN DEV GPGPU CUDA_A"       : "//sw/gpgpu/MachineLearning/cudnn/eris/cudnn_gpgpu_cuda_a.vlcp",
-                  "CUDNN DEV CUDA 9.2 r396"      : "//sw/gpgpu/MachineLearning/cudnn/eris/cudnn_r92_r396.vlcp"
+                  "CUDNN V7.1 CUDA 9.2 r396"     : "//sw/gpgpu/MachineLearning/cudnn_v7.1/eris/cudnn_r92_r396.vlcp",
+                  "CUDA gpgpu cuda_a"            : "//sw/gpgpu/eris/cuda.vlcp"
         }
 
 ########### func ############
