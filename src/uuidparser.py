@@ -229,7 +229,6 @@ def display(ResuList):
             print(e)
             #print(e.values())
 
-
 """
 Delta between nightly
 """

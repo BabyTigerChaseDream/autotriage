@@ -131,8 +131,8 @@ if __name__=="__main__":
     elif arglist.diff:
         newResuList = GetCompleteTestList(arglist.uuidnew, force=arglist.force)
         oldResuList = GetCompleteTestList(arglist.uuidold, force=arglist.force)
-        FList = newResuList + oldResuList
-        GroupUUID(FList)
+
+        DiffUUIDSep(newResuList,oldResuList)
         # start compare 
         #DiffTests(fd_uuidnew,fd_uuidold)
     elif arglist.get:
