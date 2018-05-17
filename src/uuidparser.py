@@ -150,9 +150,9 @@ def ConfigStrUpdate(ResuList, configMap):
     return ResuList
 
 # autotriage cmd "show test" 
-def GetCompleteTestList(uuid, keyword=None, force=False):
+def GetCompleteTestList(uuid, LocDir,keyword=None, force=False):
    # TODO : use "logging" ?
-    uuidcsv = os.path.join(locTrgdir,uuid,uuid+'.csv')
+    uuidcsv = os.path.join(LocDir,uuid+'.csv')
     CompleteTestList = []
     if not force and \
         os.path.exists(uuidcsv) and \
@@ -168,7 +168,8 @@ def GetCompleteTestList(uuid, keyword=None, force=False):
                     if keyword in row['resu']: 
                         CompleteTestList.append(row)
     else:
-        MakeDir(os.path.join(locTrgdir,uuid))
+        # TODO , move this func to else where
+        #MakeDir(os.path.join(LocDir))
         testList = FilterResuList(GetTestTable(uuid),keyword)
         cidSet = ConfigIDSet(testList)
         # below got "cid:{os,arch,gpu}" dict group

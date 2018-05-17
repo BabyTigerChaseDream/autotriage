@@ -38,6 +38,16 @@ from difftest import *
 from cmdgetter import *
 #from diagtest import *
 
+cudnn_path_dict = {
+            # TODO : weekly
+            'CUDNN V7.1 CUDA 9.2 r396':'v71_r92_r396',
+            'CUDNN V7.1 CUDA 9.1 r390':'v71_r91_r390',
+            'CUDNN V7.1 CUDA 9.0 r384':'v71_r90_r384',
+            'CUDNN V7.1 CUDA 8.0 r375':'v71_r80_r375',
+            # TODO : v7.1 weekly
+            'CUDNN DEV GPGPU CUDA_A':'cudnn_gpgpu_cuda_a'
+            }
+            
 ####################
 #####   main   #####`
 ####################
@@ -75,6 +85,12 @@ if __name__=="__main__":
     ARG Parsing starts
     """
     uuid = arglist.uuid
+
+    print('============ UUID Info =============')
+    (uuid, prod, testdate, user, uuidCL, tags) = UUIDInfo(uuid) 
+    print((uuid, prod, testdate, user, uuidCL, tags))
+    LocDir = os.path.join(locTrgdir,cudnn_path_dict[prod],arglist.uuid)
+
     # TODO : better exclusive subparam among(sh/diff/exec)
     """ 
         'show cmd' support 
@@ -84,10 +100,11 @@ if __name__=="__main__":
     if arglist.show:
     #TODO : keep uuid overall result table:: load once and ONLY once !!!
         if arglist.show == 'test':
-            print('============ UUID Info =============')
-            print(UUIDInfo(uuid))
+
+            print("[DBG] Making LocDir:",LocDir)
+            MakeDir(LocDir)
             print('============ Overall =============')
-            for t in GetCompleteTestList(uuid, keyword=arglist.keyword, force=arglist.force):
+            for t in GetCompleteTestList(uuid, LocDir,keyword=arglist.keyword, force=arglist.force):
                 print(t['suite'],t['resu'],t['info'],t['cid'],t['hw'],t['log'], sep=' | ')
 
             print('=====================================')
@@ -96,7 +113,7 @@ if __name__=="__main__":
             DnldTuple = namedtuple('DnldTuple', ['suite','cid','pathlog'])
             download_list = []
             if arglist.name:
-                for t in GetCompleteTestList(uuid, "failed", force=arglist.force):
+                for t in GetCompleteTestList(uuid, LocDir,"failed", force=arglist.force):
                 # TODO : change arglist.suite to support list 
                     # failed with Eris Infra , no log 
                     # [Note] When transferred by csv , element will be '' (empty string)
@@ -106,7 +123,7 @@ if __name__=="__main__":
                         download_list.append(DnldTuple(t['suite'],t['cid'],DownloadFd(t, uuid, force=arglist.force)))
             # else download all failed suite name's log 
             else:
-                for t in GetCompleteTestList(uuid, "failed", force=arglist.force):
+                for t in GetCompleteTestList(uuid, LocDir,"failed", force=arglist.force):
                     # failed with Eris Infra , no log , 'hw':None/'log':None
                     # [Note] When transferred by csv , element will be '' (empty string)
                     if t['hw'] and t['log']:
@@ -135,17 +152,17 @@ if __name__=="__main__":
         print(UUIDInfo(arglist.uuidnew))
         print('============ old UUID Info =============')
         print(UUIDInfo(arglist.uuidold))
-        newResuList = GetCompleteTestList(arglist.uuidnew, force=arglist.force)
-        oldResuList = GetCompleteTestList(arglist.uuidold, force=arglist.force)
+        newResuList = GetCompleteTestList(arglist.uuidnew, LocDir,force=arglist.force)
+        oldResuList = GetCompleteTestList(arglist.uuidold, LocDir,force=arglist.force)
 
         DiffUUIDSep(newResuList,oldResuList)
         # start compare 
         #DiffTests(fd_uuidnew,fd_uuidold)
     elif arglist.get:
-        #GetCompleteTestList(uuid, "failed", force=arglist.force)
+        #GetCompleteTestList(uuid, LocDir,"failed", force=arglist.force)
         if arglist.get == 'cmd':
         # force to get "dict" from url, rather than read from csv(it will turn all data into "str")
            vlcpFd=GetProd(uuid)
-           GenerateCmd(GetCompleteTestList(uuid, force=True), vlcpFd)
+           GenerateCmd(GetCompleteTestList(uuid, LocDir,force=True), vlcpFd)
             
             

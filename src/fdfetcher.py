@@ -17,6 +17,10 @@ import subprocess as sub
 # file match
 import glob
 
+# TODO Messy-fix
+from autotriage import cudnn_path_dict
+from uuidparser import UUIDInfo
+
 dbg =True 
 
 # download servevr 
@@ -30,6 +34,7 @@ RelServer = {
     # TODO needs user/pw:  --user=swqa --password=test
     'drv' : "http://10.19.193.206/teslaswqash_manual/UDA/"
 }
+
 
 # local path  
 global locTrgdir 
@@ -110,7 +115,10 @@ def DownloadFd(TestEntry, uuid, force=False):
     # some file is HUGE , ends with log NOT zip , so in "pattern" , used * instead 
     pattern = '*'.join((TestEntry['hw'],TestEntry['log'],'*'))
 
-    localDir = os.path.join("/home/jia/workspace/download/triage/logs/",uuid)
+    # map UUID prod to it's local path
+    prod = UUIDInfo(uuid)[1]
+    cudnn_subpath = cudnn_path_dict[prod]
+    localDir = os.path.join("/home/jia/workspace/download/triage/logs/",cudnn_subpath,uuid)
     log = TestEntry['log']
     if glob.glob(os.path.join(localDir,pattern)) and not force:
         print('[DBG]',os.path.join(localDir,pattern),'already there')
@@ -183,10 +191,12 @@ if __name__=="__main__":
     fileType = arglist.type
     if fileType == 'tr':
         WgetLink=(trgServer+arglist.uuid if arglist.link == None else arglist.link)
+        # TODO need fix based on : cudnn_path_dict
         LocDir = (locTrgdir+arglist.uuid if arglist.dir== None else arglist.dir)
     elif fileType == 'rel':
     # TODO : need parse "RelServer" further 
         WgetLink=(RelServer[arglist.comp] if arglist.link == None else arglist.link)
+        # TODO need fix based on : cudnn_path_dict
         LocDir = (locReldir if arglist.dir== None else arglist.dir)
     else:
     # default needs http link from user 
@@ -194,6 +204,8 @@ if __name__=="__main__":
             raise ValueError("-http must be specified in priv download !!! ")
             
         WgetLink = arglist.http
+
+        # TODO need fix based on : cudnn_path_dict
         LocDir = (locPrivDir if arglist.dir== None else arglist.dir)
         
     pattern = arglist.fdpat
