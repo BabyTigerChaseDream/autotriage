@@ -84,6 +84,8 @@ if __name__=="__main__":
     if arglist.show:
     #TODO : keep uuid overall result table:: load once and ONLY once !!!
         if arglist.show == 'test':
+            print('============ UUID Info =============')
+            print(UUIDInfo(uuid))
             print('============ Overall =============')
             for t in GetCompleteTestList(uuid, keyword=arglist.keyword, force=arglist.force):
                 print(t['suite'],t['resu'],t['info'],t['cid'],t['hw'],t['log'], sep=' | ')
@@ -129,6 +131,10 @@ if __name__=="__main__":
     ############################################################################################
     # TODO: optimize search algo 
     elif arglist.diff:
+        print('============ new UUID Info =============')
+        print(UUIDInfo(arglist.uuidnew))
+        print('============ old UUID Info =============')
+        print(UUIDInfo(arglist.uuidold))
         newResuList = GetCompleteTestList(arglist.uuidnew, force=arglist.force)
         oldResuList = GetCompleteTestList(arglist.uuidold, force=arglist.force)
 

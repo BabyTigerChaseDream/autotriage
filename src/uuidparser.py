@@ -56,6 +56,12 @@ def GetUrlString(url):
         /***     contains all info we need     ***/
     ####################################################
 """
+### product / date / overall CL  
+def UUIDInfo(uuid):
+    url = 'https://eris-portal.nvidia.com/GetSubmissionHeaderOneUuidServlet?uuid=%s'%uuid
+    uuidinfo = GetUrlString(url)
+    prod, _, testdate, user, uuidCL, tags, _, _ = re.findall('<td>(.*?)<',uuidinfo)
+    return  (uuid, prod, testdate, user, uuidCL, tags)
 
 ### return CUDA_A/CUDA9.2 
 def GetProd(uuid):
