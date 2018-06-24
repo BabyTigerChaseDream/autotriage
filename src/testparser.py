@@ -45,8 +45,11 @@ def TestFilter(logfile, keyword=None, logfail=True, detail=True, diffuuid=False)
     for err, testItem in groupby(resuList,key=itemgetter('errname')):
         if keyword:
             # check if any keyword match testid (PASS/FAILED/WAIVED) 
-            if any(filter(lambda t: keyword in t['testid'], testItem)):
+            #if any(filter(lambda t: keyword in t['testid'], testItem)):
+            FirstMatch = next(filter(lambda t: keyword in t['testid'], testItem), False)
+            if FirstMatch is not False:            
                 if not diffuuid : print("========== [error Info] ========== \n\t%s \n" % err)
+                print(FirstMatch['testid'])
                 with open(log4fail,'a') as fdfail:
                     #print('===== [matched] =====   ',err)
                     if detail:

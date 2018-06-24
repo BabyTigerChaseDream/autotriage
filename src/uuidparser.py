@@ -37,8 +37,16 @@ global cudnn_vlcp_dict
 
 cudnn_vlcp_dict = {
                   "CUDNN DEV GPGPU CUDA_A"       : "//sw/gpgpu/MachineLearning/cudnn/eris/cudnn_gpgpu_cuda_a.vlcp",
+                  "CUDA gpgpu cuda_a"            : "//sw/gpgpu/eris/cuda.vlcp",
                   "CUDNN V7.1 CUDA 9.2 r396"     : "//sw/gpgpu/MachineLearning/cudnn_v7.1/eris/cudnn_r92_r396.vlcp",
-                  "CUDA gpgpu cuda_a"            : "//sw/gpgpu/eris/cuda.vlcp"
+                  "CUDNN V7.1 CUDA 9.1 r390"     : "//sw/gpgpu/MachineLearning/cudnn_v7.1/eris/cudnn_r91_r390.vlcp",
+                  "CUDNN V7.1 CUDA 9.0 r384"     : "//sw/gpgpu/MachineLearning/cudnn_v7.1/eris/cudnn_r90_r384.vlcp",
+                  "CUDNN V7.1 CUDA 8.0 r375"     : "//sw/gpgpu/MachineLearning/cudnn_v7.1/eris/cudnn_r80_r375.vlcp",
+
+                  "CUDNN 7.2 CUDA 9.2 r396"     : "//sw/gpgpu/MachineLearning/cudnn_v7.2/eris/cudnn_r92_r396.vlcp",
+                  "CUDNN V7.2 CUDA 9.0 r384"     : "//sw/gpgpu/MachineLearning/cudnn_v7.2/eris/cudnn_r90_r384.vlcp",
+                  "CUDNN V7.2 CUDA 8.0 r375"     : "//sw/gpgpu/MachineLearning/cudnn_v7.2/eris/cudnn_r80_r375.vlcp",
+                  "CUDNN 7.2 CUDA 10.0 r400"     : "//sw/gpgpu/MachineLearning/cudnn_v7.2/eris/cudnn_r100_r400.vlcp"
         }
 
 ########### func ############
